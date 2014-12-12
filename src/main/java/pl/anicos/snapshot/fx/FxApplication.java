@@ -32,7 +32,8 @@ public class FxApplication extends Application {
 		StackPane root = new StackPane();
 		Scene scene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT);
 		primaryStage.setScene(scene);
-		primaryStage.show();		
+		primaryStage.show();	
+		
 	}
 
 	public void createSnapshot(final DeferredResult<SnapshotResult> deferredResult, SnapshotDetail snapshotDetail) {
