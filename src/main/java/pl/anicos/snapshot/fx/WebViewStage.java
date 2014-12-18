@@ -1,18 +1,23 @@
 package pl.anicos.snapshot.fx;
 
 import java.awt.image.BufferedImage;
+import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.concurrent.Worker;
 import javafx.concurrent.Worker.State;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.image.WritableImage;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import org.springframework.web.context.request.async.DeferredResult;
 
@@ -79,9 +84,18 @@ public class WebViewStage extends Stage {
 
 		switch (newState) {
 		case SUCCEEDED:
-			String encodedImage = createSnapshotInBase64();
-			deferredResult.setResult(new SnapshotResult(encodedImage));
-			close();
+
+			Platform.runLater(new FutureTask<Void>(new Callable<Void>() {
+
+				@Override
+				public Void call() throws Exception {
+					String encodedImage = createSnapshotInBase64();
+					deferredResult.setResult(new SnapshotResult(encodedImage));
+					close();
+					return null;
+				}
+			}));
+
 			break;
 		case FAILED:
 			deferredResult.setErrorResult(new PageNotFoundException("Can't open the page, wrong url"));
