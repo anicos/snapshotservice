@@ -76,25 +76,14 @@ public class WebViewStage extends Stage {
 	}
 
 	private void runFutureTaskOnStateChange(State newState, DeferredResult<SnapshotResult> deferredResult) {
-		final FutureTask<Void> futureTask = new FutureTask<Void>(() -> onStateChange(newState, deferredResult));
-		Platform.runLater(futureTask);
+		Platform.runLater(() -> onStateChange(newState, deferredResult));
 	}
 
-	private Void onStateChange(State newState, DeferredResult<SnapshotResult> deferredResult) {
-
+	private void onStateChange(State newState, DeferredResult<SnapshotResult> deferredResult) {
 		switch (newState) {
 		case SUCCEEDED:
-			PauseTransition pause = new PauseTransition(Duration.seconds(3));
-			pause.setOnFinished(new EventHandler<ActionEvent>() {
-				@Override
-				public void handle(ActionEvent event) {
-
-					String encodedImage = createSnapshotInBase64();
-					deferredResult.setResult(new SnapshotResult(encodedImage));
-					close();
-
-				}
-			});
+			PauseTransition pause = new PauseTransition(Duration.seconds(5));
+			pause.setOnFinished((e) -> decodeScreenShotAndSetResult(deferredResult));
 			pause.play();
 
 			break;
@@ -104,7 +93,12 @@ public class WebViewStage extends Stage {
 			break;
 		default:
 		}
-		return null;
+	}
+	
+	private void decodeScreenShotAndSetResult(DeferredResult<SnapshotResult> deferredResult) {
+		String encodedImage = createSnapshotInBase64();
+		deferredResult.setResult(new SnapshotResult(encodedImage));
+		close();
 	}
 
 	private String createSnapshotInBase64() {

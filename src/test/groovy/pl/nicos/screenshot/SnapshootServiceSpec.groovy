@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationContextLoader;
 import org.springframework.boot.test.TestRestTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -60,13 +61,13 @@ class SnapshootServiceSpec extends Specification {
 	}
 
 
-//	def "shouldThrowErrorWithWrongUrl"() {
-//
-//		when:
-//		def responseEntity = template.getForEntity("http://localhost:8080/thumb?twidth=1024&theight=768&wwidth=1024&wheight=768&url=wp.pl", String.class)
-//
-//		then:
-//		responseEntity.getStatusCode()==HttpStatus.BAD_REQUEST
-//
-//	}
+	def "shouldThrowErrorWithWrongUrl"() {
+
+		when:
+		def responseEntity = template.getForEntity("http://localhost:8080/thumb?twidth=1024&theight=768&wwidth=1024&wheight=768&url=wp.pl", String.class)
+
+		then:
+		responseEntity.getStatusCode()==HttpStatus.BAD_REQUEST
+
+	}
 }
