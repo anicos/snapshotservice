@@ -84,17 +84,18 @@ public class WebViewStage extends Stage {
 
 		switch (newState) {
 		case SUCCEEDED:
-
-			Platform.runLater(new FutureTask<Void>(new Callable<Void>() {
-
+			PauseTransition pause = new PauseTransition(Duration.seconds(3));
+			pause.setOnFinished(new EventHandler<ActionEvent>() {
 				@Override
-				public Void call() throws Exception {
+				public void handle(ActionEvent event) {
+
 					String encodedImage = createSnapshotInBase64();
 					deferredResult.setResult(new SnapshotResult(encodedImage));
 					close();
-					return null;
+
 				}
-			}));
+			});
+			pause.play();
 
 			break;
 		case FAILED:
