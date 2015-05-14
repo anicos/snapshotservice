@@ -16,7 +16,7 @@ import pl.anicos.snapshot.model.SnapshotDetail;
 import pl.anicos.snapshot.model.SnapshotResult;
 
 @RestController
-public class SnapshotService {
+class SnapshotService {
 
 	
 	@RequestMapping(value="/thumb", method = RequestMethod.GET)

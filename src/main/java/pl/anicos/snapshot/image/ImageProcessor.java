@@ -16,8 +16,8 @@ public class ImageProcessor {
 	private Base64Encoder base64Encoder;
 	
 	public String resizeAndEncode(BufferedImage bufferedImage, SnapshotDetail snapshotDetail){
-		BufferedImage resizedBufferedImage = bufferedImageResizer.resize(bufferedImage, snapshotDetail.getThumbnailWidth(), snapshotDetail.getThumbnailHeight());
-		return base64Encoder.encodeBufferedImage(resizedBufferedImage);
+		BufferedImage afterResizeBufferedImage = bufferedImageResizer.resize(bufferedImage, snapshotDetail.getThumbnailWidth(), snapshotDetail.getThumbnailHeight());
+		return base64Encoder.encodeBufferedImage(afterResizeBufferedImage);
 	}
 	
 }

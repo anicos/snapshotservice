@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import com.mortennobel.imagescaling.ResampleOp;
 
 @Component
-public class BufferedImageResizer {
+class BufferedImageResizer {
 	
 	
 	public BufferedImage resize(BufferedImage originalImage, int width, int height) {

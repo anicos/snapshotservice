@@ -9,20 +9,13 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
 @Component
-public class FxApplicationInitializer {
+class FxApplicationInitializer {
 
 	@Autowired
 	private ThreadPoolTaskExecutor threadPoolTaskExecutor;
 	
 	@PostConstruct
 	private void init() {
-		threadPoolTaskExecutor.execute(new Runnable() {
-			
-			@Override
-			public void run() {
-				Application.launch(FxApplication.class);
-				
-			}
-		});		
+		threadPoolTaskExecutor.execute(() -> Application.launch(FxApplication.class));
 	}
 }

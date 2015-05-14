@@ -12,7 +12,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 @Configuration
 @EnableAutoConfiguration
 @ComponentScan
-public class Main {	
+class Main {
 	
 	public static void main(String[] args) throws IOException, InterruptedException {		
 		 SpringApplication.run(Main.class, args);

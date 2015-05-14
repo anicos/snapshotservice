@@ -38,7 +38,7 @@ public class FxApplication extends Application {
 
 	public void createSnapshot(final DeferredResult<SnapshotResult> deferredResult, SnapshotDetail snapshotDetail) {
 
-		final FutureTask<Void> futureTask = new FutureTask<Void>(() -> {
+		final FutureTask<Void> futureTask = new FutureTask<>(() -> {
 			WebViewStage stage = new WebViewStage(snapshotDetail);
 			stage.loadPage(deferredResult);
 			return null;

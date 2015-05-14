@@ -1,35 +1,30 @@
 package pl.anicos.snapshot.fx;
 
-import java.awt.image.BufferedImage;
-import java.util.concurrent.Callable;
-import java.util.concurrent.FutureTask;
-
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.concurrent.Worker;
 import javafx.concurrent.Worker.State;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.image.WritableImage;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-
 import org.springframework.web.context.request.async.DeferredResult;
-
 import pl.anicos.snapshot.exception.PageNotFoundException;
 import pl.anicos.snapshot.image.ImageProcessor;
 import pl.anicos.snapshot.model.SnapshotDetail;
 import pl.anicos.snapshot.model.SnapshotResult;
 import pl.anicos.snapshot.spring.SpringBeanProvider;
 
-public class WebViewStage extends Stage {
+import java.awt.image.BufferedImage;
+
+class WebViewStage extends Stage {
 
 	private static final String WEB_VIEW_STYLE_CSS = "webViewStyle.css";
+	private static final int TIME_FOR_PAGE_RENDERER = 5;
 
 	private final String styleSheetForWebView = getClass().getResource(WEB_VIEW_STYLE_CSS).toExternalForm();
 	private final ImageProcessor imageProcessor;
@@ -44,7 +39,7 @@ public class WebViewStage extends Stage {
 
 	public void loadPage(DeferredResult<SnapshotResult> deferredResult) {
 		WebEngine engine = webView.getEngine();
-		addOnWebViewChangeListner(engine, deferredResult);
+		addOnWebViewChangeListener(engine, deferredResult);
 		engine.load(snapshotDetail.getUrl());
 	}
 
@@ -68,7 +63,7 @@ public class WebViewStage extends Stage {
 		show();
 	}
 
-	private void addOnWebViewChangeListner(WebEngine engine, DeferredResult<SnapshotResult> deferredResult) {
+	private void addOnWebViewChangeListener(WebEngine engine, DeferredResult<SnapshotResult> deferredResult) {
 		Worker<Void> loadWorker = engine.getLoadWorker();
 		ReadOnlyObjectProperty<State> stateProperty = loadWorker.stateProperty();
 
@@ -82,13 +77,13 @@ public class WebViewStage extends Stage {
 	private void onStateChange(State newState, DeferredResult<SnapshotResult> deferredResult) {
 		switch (newState) {
 		case SUCCEEDED:
-			PauseTransition pause = new PauseTransition(Duration.seconds(5));
+			PauseTransition pause = new PauseTransition(Duration.seconds(TIME_FOR_PAGE_RENDERER));
 			pause.setOnFinished((e) -> decodeScreenShotAndSetResult(deferredResult));
 			pause.play();
 
 			break;
 		case FAILED:
-			deferredResult.setErrorResult(new PageNotFoundException("Can't open the page, wrong url"));
+			deferredResult.setErrorResult(new PageNotFoundException());
 			close();
 			break;
 		default:
@@ -104,7 +99,6 @@ public class WebViewStage extends Stage {
 	private String createSnapshotInBase64() {
 		WritableImage snapshot = webView.snapshot(null, null);
 		BufferedImage bufferedImage = SwingFXUtils.fromFXImage(snapshot, null);
-		String encodedImage = imageProcessor.resizeAndEncode(bufferedImage, snapshotDetail);
-		return encodedImage;
+		return imageProcessor.resizeAndEncode(bufferedImage, snapshotDetail);
 	}
 }

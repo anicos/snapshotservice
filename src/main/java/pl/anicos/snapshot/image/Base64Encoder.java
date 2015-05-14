@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 
 @Component
-public class Base64Encoder {
+class Base64Encoder {
 	
 	public String encodeBufferedImage(BufferedImage bufferedImage) {
 		try(ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()){
