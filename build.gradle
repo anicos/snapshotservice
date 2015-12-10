@@ -9,25 +9,23 @@ buildscript {
 }
 
 apply plugin: 'java'
-apply plugin: 'eclipse'
 apply plugin: 'spring-boot'
 apply plugin: 'groovy'
 
 sourceCompatibility = 1.8
 version = '1.0'
-jar {
-    manifest {
-        attributes 'Implementation-Title': 'Gradle Quickstart', 'Implementation-Version': version
-    }
-}
 
 repositories {
     mavenCentral()
 }
 
+bootRepackage {
+    mainClass = 'pl.anicos.snapshot.Main'
+}
+
 dependencies {
 
-    compile("org.springframework.boot:spring-boot-starter-web:1.1.9.RELEASE")
+    compile 'org.springframework.boot:spring-boot-starter-web:1.1.9.RELEASE'
     compile 'com.mortennobel:java-image-scaling:0.8.5'
 	
     testCompile 'org.codehaus.groovy:groovy-all:2.3.7'
@@ -35,6 +33,24 @@ dependencies {
     testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
 	testCompile 'org.springframework:spring-test:4.1.2.RELEASE'
 	
+}
+
+jar {
+    archiveName = 'snapshotservice.jar'
+
+    manifest {
+        attributes 'Implementation-Title': 'Snapshoot Service', 'Implementation-Version': version
+        attributes 'Main-Class': 'pl.anicos.snapshot.Main'
+    }
+
+    doFirst {
+        from (configurations.runtime.resolve().collect { it.isDirectory() ? it : zipTree(it) }) {
+            exclude 'META-INF/MANIFEST.MF'
+            exclude 'META-INF/*.SF'
+            exclude 'META-INF/*.DSA'
+            exclude 'META-INF/*.RSA'
+        }
+    }
 }
 
 task wrapper(type: Wrapper) {
