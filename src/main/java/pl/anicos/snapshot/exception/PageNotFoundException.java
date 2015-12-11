@@ -8,8 +8,8 @@ public class PageNotFoundException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 
-	public PageNotFoundException(String reason) {
-		super(reason);
+	public PageNotFoundException() {
+		super("Can't open the page, wrong url");
 	}
 
 }

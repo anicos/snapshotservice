@@ -2,8 +2,11 @@ package pl.anicos.snapshot.model;
 
 public class SnapshotResult {
 	// base64
-	final private String thumb;
+	private String thumb;
 
+	public SnapshotResult() {	
+	}
+	
 	public SnapshotResult(String thumb) {
 		this.thumb = thumb;
 	}

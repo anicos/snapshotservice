@@ -1,8 +1,6 @@
 package pl.anicos.snapshot.fx;
 
-import java.awt.image.BufferedImage;
-import java.util.concurrent.FutureTask;
-
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.concurrent.Worker;
@@ -13,16 +11,21 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
-
+import javafx.util.Duration;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.web.context.request.async.DeferredResult;
-
 import pl.anicos.snapshot.exception.PageNotFoundException;
 import pl.anicos.snapshot.image.ImageProcessor;
 import pl.anicos.snapshot.model.SnapshotDetail;
 import pl.anicos.snapshot.model.SnapshotResult;
+import pl.anicos.snapshot.spring.PropertiesProvider;
 import pl.anicos.snapshot.spring.SpringBeanProvider;
 
-public class WebViewStage extends Stage {
+import java.awt.image.BufferedImage;
+import java.util.logging.Logger;
+
+class WebViewStage extends Stage {
 
 	private static final String WEB_VIEW_STYLE_CSS = "webViewStyle.css";
 
@@ -30,16 +33,20 @@ public class WebViewStage extends Stage {
 	private final ImageProcessor imageProcessor;
 	private final WebView webView;
 	private final SnapshotDetail snapshotDetail;
+	private final PropertiesProvider propertiesProvider;
+	private final Log log = LogFactory.getLog(getClass());
 
 	public WebViewStage(SnapshotDetail snapshotDetail) {
 		this.snapshotDetail = snapshotDetail;
 		this.imageProcessor = SpringBeanProvider.getBean(ImageProcessor.class);
+		this.propertiesProvider = SpringBeanProvider.getBean(PropertiesProvider.class);
 		this.webView = createWebView();
 	}
 
 	public void loadPage(DeferredResult<SnapshotResult> deferredResult) {
 		WebEngine engine = webView.getEngine();
-		addOnWebViewChangeListner(engine, deferredResult);
+		addOnWebViewChangeListener(engine, deferredResult);
+		log.info("Load url: "+ snapshotDetail.getUrl());
 		engine.load(snapshotDetail.getUrl());
 	}
 
@@ -63,7 +70,7 @@ public class WebViewStage extends Stage {
 		show();
 	}
 
-	private void addOnWebViewChangeListner(WebEngine engine, DeferredResult<SnapshotResult> deferredResult) {
+	private void addOnWebViewChangeListener(WebEngine engine, DeferredResult<SnapshotResult> deferredResult) {
 		Worker<Void> loadWorker = engine.getLoadWorker();
 		ReadOnlyObjectProperty<State> stateProperty = loadWorker.stateProperty();
 
@@ -71,31 +78,34 @@ public class WebViewStage extends Stage {
 	}
 
 	private void runFutureTaskOnStateChange(State newState, DeferredResult<SnapshotResult> deferredResult) {
-		final FutureTask<Void> futureTask = new FutureTask<Void>(() -> onStateChange(newState, deferredResult));
-		Platform.runLater(futureTask);
+		Platform.runLater(() -> onStateChange(newState, deferredResult));
 	}
 
-	private Void onStateChange(State newState, DeferredResult<SnapshotResult> deferredResult) {
-
+	private void onStateChange(State newState, DeferredResult<SnapshotResult> deferredResult) {
 		switch (newState) {
 		case SUCCEEDED:
-			String encodedImage = createSnapshotInBase64();
-			deferredResult.setResult(new SnapshotResult(encodedImage));
-			close();
+			PauseTransition pause = new PauseTransition(Duration.millis(propertiesProvider.getTimeForPageRendered()));
+			pause.setOnFinished((e) -> decodeScreenShotAndSetResult(deferredResult));
+			pause.play();
+
 			break;
 		case FAILED:
-			deferredResult.setErrorResult(new PageNotFoundException("Can't open the page, wrong url"));
+			deferredResult.setErrorResult(new PageNotFoundException());
 			close();
 			break;
 		default:
 		}
-		return null;
+	}
+	
+	private void decodeScreenShotAndSetResult(DeferredResult<SnapshotResult> deferredResult) {
+		String encodedImage = createSnapshotInBase64();
+		deferredResult.setResult(new SnapshotResult(encodedImage));
+		close();
 	}
 
 	private String createSnapshotInBase64() {
 		WritableImage snapshot = webView.snapshot(null, null);
 		BufferedImage bufferedImage = SwingFXUtils.fromFXImage(snapshot, null);
-		String encodedImage = imageProcessor.resizeAndEncode(bufferedImage, snapshotDetail);
-		return encodedImage;
+		return imageProcessor.resizeAndEncode(bufferedImage, snapshotDetail);
 	}
 }
