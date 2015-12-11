@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,7 +20,10 @@ import pl.anicos.snapshot.model.SnapshotResult;
 @RestController
 class SnapshotService {
 
-	
+
+	public static final Long TIMEOUT = 15000L;
+	private final Log log = LogFactory.getLog(getClass());
+
 	@RequestMapping(value="/thumb", method = RequestMethod.GET)
 	@ResponseBody
 	private DeferredResult<SnapshotResult> home(@RequestParam("url") String url, @RequestParam("twidth") int thumbnailWidth, @RequestParam("theight") int thumbnailHeight,
@@ -28,8 +33,8 @@ class SnapshotService {
 		
 		SnapshotDetail snapshotDetail = new SnapshotDetail(url, thumbnailWidth, thumbnailHeight, windowWidth, windowHeight);
 		
-		final DeferredResult<SnapshotResult> deferredResult = new DeferredResult<>(); 
- 
+		final DeferredResult<SnapshotResult> deferredResult = new DeferredResult<>(TIMEOUT);
+		deferredResult.onTimeout(() -> log.info("Timeout on url: " +url));
 		
 		FxApplication.getInstance().createSnapshot(deferredResult, snapshotDetail);
 		

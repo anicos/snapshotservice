@@ -12,6 +12,8 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.web.context.request.async.DeferredResult;
 import pl.anicos.snapshot.exception.PageNotFoundException;
 import pl.anicos.snapshot.image.ImageProcessor;
@@ -20,16 +22,18 @@ import pl.anicos.snapshot.model.SnapshotResult;
 import pl.anicos.snapshot.spring.SpringBeanProvider;
 
 import java.awt.image.BufferedImage;
+import java.util.logging.Logger;
 
 class WebViewStage extends Stage {
 
 	private static final String WEB_VIEW_STYLE_CSS = "webViewStyle.css";
-	private static final int TIME_FOR_PAGE_RENDERER = 5;
+	private static final int TIME_FOR_PAGE_RENDERER = 7;
 
 	private final String styleSheetForWebView = getClass().getResource(WEB_VIEW_STYLE_CSS).toExternalForm();
 	private final ImageProcessor imageProcessor;
 	private final WebView webView;
 	private final SnapshotDetail snapshotDetail;
+	private final Log log = LogFactory.getLog(getClass());
 
 	public WebViewStage(SnapshotDetail snapshotDetail) {
 		this.snapshotDetail = snapshotDetail;
@@ -40,6 +44,7 @@ class WebViewStage extends Stage {
 	public void loadPage(DeferredResult<SnapshotResult> deferredResult) {
 		WebEngine engine = webView.getEngine();
 		addOnWebViewChangeListener(engine, deferredResult);
+		log.info("Load url: "+ snapshotDetail.getUrl());
 		engine.load(snapshotDetail.getUrl());
 	}
 
