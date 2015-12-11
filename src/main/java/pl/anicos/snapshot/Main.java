@@ -14,7 +14,8 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 @ComponentScan
 public class Main {
 	
-	public static void main(String[] args) throws IOException, InterruptedException {		
+	public static void main(String[] args) throws IOException, InterruptedException {
+
 		 SpringApplication.run(Main.class, args);
 	}
 	

@@ -19,6 +19,7 @@ import pl.anicos.snapshot.exception.PageNotFoundException;
 import pl.anicos.snapshot.image.ImageProcessor;
 import pl.anicos.snapshot.model.SnapshotDetail;
 import pl.anicos.snapshot.model.SnapshotResult;
+import pl.anicos.snapshot.spring.PropertiesProvider;
 import pl.anicos.snapshot.spring.SpringBeanProvider;
 
 import java.awt.image.BufferedImage;
@@ -27,17 +28,18 @@ import java.util.logging.Logger;
 class WebViewStage extends Stage {
 
 	private static final String WEB_VIEW_STYLE_CSS = "webViewStyle.css";
-	private static final int TIME_FOR_PAGE_RENDERER = 7;
 
 	private final String styleSheetForWebView = getClass().getResource(WEB_VIEW_STYLE_CSS).toExternalForm();
 	private final ImageProcessor imageProcessor;
 	private final WebView webView;
 	private final SnapshotDetail snapshotDetail;
+	private final PropertiesProvider propertiesProvider;
 	private final Log log = LogFactory.getLog(getClass());
 
 	public WebViewStage(SnapshotDetail snapshotDetail) {
 		this.snapshotDetail = snapshotDetail;
 		this.imageProcessor = SpringBeanProvider.getBean(ImageProcessor.class);
+		this.propertiesProvider = SpringBeanProvider.getBean(PropertiesProvider.class);
 		this.webView = createWebView();
 	}
 
@@ -82,7 +84,7 @@ class WebViewStage extends Stage {
 	private void onStateChange(State newState, DeferredResult<SnapshotResult> deferredResult) {
 		switch (newState) {
 		case SUCCEEDED:
-			PauseTransition pause = new PauseTransition(Duration.seconds(TIME_FOR_PAGE_RENDERER));
+			PauseTransition pause = new PauseTransition(Duration.millis(propertiesProvider.getTimeForPageRendered()));
 			pause.setOnFinished((e) -> decodeScreenShotAndSetResult(deferredResult));
 			pause.play();
 
