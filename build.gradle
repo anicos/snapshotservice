@@ -23,16 +23,23 @@ bootRepackage {
     mainClass = 'pl.anicos.snapshot.Main'
 }
 
+springBoot {
+    mainClass = 'pl.anicos.snapshot.Main'
+}
+
 dependencies {
 
     compile 'org.springframework.boot:spring-boot-starter-web:1.1.9.RELEASE'
     compile 'com.mortennobel:java-image-scaling:0.8.5'
-	
+    compile 'args4j:args4j:2.32'
+
+
+    testCompile 'cglib:cglib-nodep:3.2.0'
     testCompile 'org.codehaus.groovy:groovy-all:2.3.7'
-	testCompile 'org.spockframework:spock-spring:0.7-groovy-2.0'
+    testCompile 'org.spockframework:spock-spring:0.7-groovy-2.0'
     testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
-	testCompile 'org.springframework:spring-test:4.1.2.RELEASE'
-	
+    testCompile 'org.springframework:spring-test:4.1.2.RELEASE'
+
 }
 
 jar {
@@ -44,7 +51,7 @@ jar {
     }
 
     doFirst {
-        from (configurations.runtime.resolve().collect { it.isDirectory() ? it : zipTree(it) }) {
+        from(configurations.runtime.resolve().collect { it.isDirectory() ? it : zipTree(it) }) {
             exclude 'META-INF/MANIFEST.MF'
             exclude 'META-INF/*.SF'
             exclude 'META-INF/*.DSA'
@@ -54,5 +61,5 @@ jar {
 }
 
 task wrapper(type: Wrapper) {
-	gradleVersion = '2.9'
+    gradleVersion = '2.9'
 }

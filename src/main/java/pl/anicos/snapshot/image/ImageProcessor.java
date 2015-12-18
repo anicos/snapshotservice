@@ -1,23 +1,21 @@
 package pl.anicos.snapshot.image;
 
-import java.awt.image.BufferedImage;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.anicos.snapshot.model.SnapshotDetail;
+import java.awt.image.BufferedImage;
 
 @Component
 public class ImageProcessor {
 
-	@Autowired
-	private BufferedImageResizer bufferedImageResizer;
-	@Autowired
-	private Base64Encoder base64Encoder;
-	
-	public String resizeAndEncode(BufferedImage bufferedImage, SnapshotDetail snapshotDetail){
-		BufferedImage afterResizeBufferedImage = bufferedImageResizer.resize(bufferedImage, snapshotDetail.getThumbnailWidth(), snapshotDetail.getThumbnailHeight());
-		return base64Encoder.encodeBufferedImage(afterResizeBufferedImage);
-	}
-	
+    @Autowired
+    private BufferedImageResizer bufferedImageResizer = new BufferedImageResizer();
+    @Autowired
+    private Base64Encoder base64Encoder = new Base64Encoder();
+
+    public String resizeAndEncode(BufferedImage bufferedImage, int thumbnailWidth, int thumbnailHeight) {
+        BufferedImage afterResizeBufferedImage = bufferedImageResizer.resize(bufferedImage, thumbnailWidth, thumbnailHeight);
+        return base64Encoder.encodeBufferedImage(afterResizeBufferedImage);
+    }
+
 }
